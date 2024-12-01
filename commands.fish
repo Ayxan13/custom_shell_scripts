@@ -17,6 +17,8 @@ end
 
 abbr -a sysup "sudo $installer update -y && sudo $installer upgrade -y && sudo $installer autoremove -y"
 
+set -e os_name
+set -e installer
 
 for script in $(dirname $(status --current-filename))/scripts/*.fish
     source $script
