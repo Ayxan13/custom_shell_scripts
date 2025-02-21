@@ -5,20 +5,30 @@
 # For example:
 #   source "$HOME/src/custom_shell_scripts/commands.fish"
 
-set os_name (grep '^NAME=' /etc/os-release | cut -d '"' -f 2)
 
-if test "$os_name" = "Fedora Linux"
-    set installer "dnf"
-else
-    set installer "apt"
+function osName
+    echo (grep '^NAME=' /etc/os-release | cut -d '"' -f 2)
 end
 
-# Update the system
+function makeSysup
+    if type -q dnf
+        set installer "dnf"
+    else
+        set installer "apt"
+    end
 
-abbr -a sysup "sudo $installer update -y && sudo $installer upgrade -y && sudo $installer autoremove -y"
+    if type -q snap
+        set snapRefresh "snap refresh"
+    else
+        set snapRefresh "true"
+    end
+    echo "sudo $snapRefresh && sudo $installer update -y && sudo $installer upgrade -y && sudo $installer autoremove -y"
+end
 
-set -e os_name
-set -e installer
+abbr -a sysup "$(makeSysup)" # Update the system
+
+functions -e osName
+functions -e makeSysup
 
 for script in $(dirname $(status --current-filename))/scripts/*.fish
     source $script
